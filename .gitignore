@@ -1,0 +1,6 @@
+*.sqlite3
+.idea/*
+*.pyc
+.DS_Store
+../DS_Store
+../marvel_pong
