@@ -75,6 +75,7 @@ class PlayerLeagueView(APIView):
         """
         Create a new league.
         """
+        return Response([{'type': 'danger', 'msg': 'Invalid league name'}], status=status.HTTP_404_NOT_FOUND)
         league_name = request.DATA['league_name']
         league_pass = request.DATA['league_pass']
 
