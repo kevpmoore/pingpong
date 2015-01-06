@@ -12,6 +12,10 @@ app.config(function($interpolateProvider, $routeProvider, $httpProvider) {
         .when('/leagues/', {controller: 'LeaguesController', templateUrl: 'static/partials/leagues_list.html'})
         .when('/league/:league_name/', {controller: 'RankingsController', templateUrl: 'static/partials/rankings.html'})
         .when('/login/', {controller: 'LoginController', templateUrl: 'static/partials/login.html'})
+        .when('/join-league/', {controller: 'JoinLeagueController', templateUrl: 'static/partials/join_league.html'})
+        .when('/create-league/', {controller: 'CreateLeagueController', templateUrl: 'static/partials/create_league.html'})
+        .when('/faq/', {controller: '', templateUrl: 'static/partials/faq.html'})
+        .when('/league/:league_name/:username/', {controller: 'StatsController', templateUrl: 'static/partials/player-stats.html'})
         .otherwise({redirectTo: '/'});
 });
 
@@ -38,6 +42,7 @@ app.controller('RegisterController', ['$scope', '$http', '$location',
         $scope.login = function() {
             $http.post('api/new-player/', $scope.player).success(
                 function(resp) {
+                    $scope.$parent.currentUser = resp;
                     $location.url('/leagues/');
                 }
             ).error(
@@ -100,14 +105,12 @@ app.controller('LoginController', ['$scope', '$http', '$location',
 app.controller('LeaguesController', ['$scope', '$http', '$location',
     function($scope, $http, $location) {
         $scope.leagues = [];
-        $scope.random_leagues = [];
         $scope.invites = [];
-        $scope.league_name = "";
+
+
         $scope.alerts = [];
-        $scope.league_alert = [];
 
         initialize = function() {
-            debugger;
             $http.get('api/leagues/').success(
                 function (resp) {
                     $scope.leagues = resp;
@@ -118,13 +121,8 @@ app.controller('LeaguesController', ['$scope', '$http', '$location',
                 function (resp) {
                     $scope.invites = resp
                 }
-            )
+            );
 
-//            $http.get('api/leagues/random/').success(
-//                function(resp) {
-//                    $scope.random_leagues = resp
-//                }
-//            );
         };
 
         $scope.actionInvite = function(invite, action) {
@@ -152,8 +150,36 @@ app.controller('LeaguesController', ['$scope', '$http', '$location',
             );
         };
 
+        $scope.goToJoin = function() {
+            $location.url('/join-league/');
+        };
+
+        $scope.goToCreate = function() {
+            $location.url('/create-league/');
+        };
+
+        $scope.goToLeague = function(league_name) {
+            $location.url('/league/' + league_name + '/');
+        };
+
+        initialize();
+    }
+]);
+
+app.controller('CreateLeagueController', ['$scope', '$http', '$location',
+    function($scope, $http, $location) {
+        $scope.league_name = '';
+        $scope.league_pass = '';
+        $scope.league_alert = [];
+
+
         $scope.createNewLeague = function() {
-            $http.post('api/leagues/', {'league_name': $scope.league_name}).success(
+            var data = {
+                'league_name': $scope.league_name,
+                'league_pass': $scope.league_pass
+            };
+
+            $http.post('api/leagues/', data).success(
                 function(resp) {
                     //forward on to league
                     $location.url('/league/' + $scope.league_name + '/')
@@ -165,15 +191,42 @@ app.controller('LeaguesController', ['$scope', '$http', '$location',
             )
         };
 
-        $scope.goToLeague = function(league_name) {
-            $location.url('/league/' + league_name + '/');
-        };
-
         $scope.closeAlert = function(index) {
             $scope.alerts.splice(index, 1);
         };
+    }
+]);
 
-        initialize();
+app.controller('JoinLeagueController', ['$scope', '$http', '$location',
+    function($scope, $http, $location) {
+        $scope.join_league_name = '';
+        $scope.join_league_pass = '';
+        $scope.join_league_alert = [];
+
+        $scope.joinLeague = function() {
+            var data = {
+                'league_name': $scope.join_league_name,
+                'league_pass': $scope.join_league_pass
+            };
+
+            $http.post('api/leagues/join/', data)
+            .success(
+                function(resp) {
+                    $scope.join_league_name = '';
+                    $scope.join_league_pass = '';
+                    $scope.join_league_alert = resp;
+                    $location.url('/leagues/')
+                }
+            ).error(
+                function(resp) {
+                    $scope.join_league_alert = resp;
+                }
+            )
+        };
+
+        $scope.closeJoinAlert = function(index) {
+            $scope.join_league_alert.splice(index, 1);
+        };
     }
 ]);
 
@@ -193,9 +246,32 @@ app.controller('ApplicationController', ['$scope', '$http',
     }
 ]);
 
+app.controller('StatsController', ['$scope', '$http', '$location', '$routeParams',
+    function($scope, $http, $location, $routeParams) {
+        $scope.stats = null;
+        $scope.league_name = '';
+
+        initialize = function() {
+            $scope.league_name = $routeParams.league_name;
+            var username = $routeParams.username;
+
+            $http.get('api/leagues/' + $scope.league_name + '/' + username + '/')
+            .success(
+                function(resp) {
+                    $scope.stats = resp;
+                }
+            );
+        };
+
+        $scope.back = function() {
+            $location.url('/league/' + $scope.league_name + '/');
+        };
+        initialize();
+    }
+]);
+
 app.controller('NavBarController', ['$scope', '$http', '$location',
     function($scope, $http, $location) {
-//        $scope.loggedInUser = '';
 
         $scope.logout = function() {
             $http.post('api/logout/', {})
@@ -265,7 +341,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
             var data = {
                 'loser' : $scope.loser.username,
                 'league_name': $scope.league_name
-            }
+            };
 
             $http.post('api/leagues/games/', data)
             .success(
@@ -279,6 +355,10 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                     $scope.game_alerts = resp;
                 }
             );
+        };
+
+        $scope.goToStats = function(username) {
+            $location.url('/league/' + $scope.league_name + '/' + username + '/');
         };
 
         $scope.closeGameAlert = function(index) {

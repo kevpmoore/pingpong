@@ -1,0 +1,19 @@
+<div>
+    <h3>Start Something New</h3>
+    <div>
+        <form data-ng-submit="createNewLeague()">
+            <div>
+                <label>League Name</label>
+                <input style="width:300px;" ng-model="league_name" type="text" class="form-control" placeholder="Enter League Name">
+            </div>
+            <div>
+                <label>League Password</label>
+                <input style="width:300px;" ng-model="league_pass" type="text" class="form-control" placeholder="Enter League Password">
+            </div>
+            <button type="submit" class="btn btn-primary">Create League</button>
+        </form>
+    </div>
+    <div>
+        <alert ng-repeat="alert in league_alert" type="[[alert.type]]" close="closeLeagueAlert($index)">[[alert.msg]]</alert>
+    </div>
+</div>

@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 from pong.league.views import IndexView, RegistrationView, PlayerLeagueView, \
     LeagueGamesView, ActionPlayerInviteView, CreatePlayerInviteView, LoginView, LogoutView, \
-    PlayerRankingsView, LeagueHistoryView, RandomLeaguesView
+    PlayerRankingsView, LeagueHistoryView, LeagueJoinView, PlayerView
 
 
 urlpatterns = patterns('',
@@ -21,10 +21,11 @@ urlpatterns = patterns('',
 
     #leagues
     url(r'^api/leagues/$', PlayerLeagueView.as_view()),
-    url(r'^api/leagues/(?P<league_name>[\w]+)$', PlayerRankingsView.as_view()),
+    url(r'^api/leagues/(?P<league_name>[A-Za-z0-9-]+)$', PlayerRankingsView.as_view()),
     url(r'^api/leagues/games/$', LeagueGamesView.as_view()),
-    url(r'^api/leagues/games/(?P<league_name>[\w]+)/$', LeagueHistoryView.as_view()),
-    url(r'^api/leagues/random/$', RandomLeaguesView.as_view()),
+    url(r'^api/leagues/games/(?P<league_name>[A-Za-z0-9-]+)/$', LeagueHistoryView.as_view()),
+    url(r'^api/leagues/join/$', LeagueJoinView.as_view()),
+    url(r'^api/leagues/(?P<league_name>[A-Za-z0-9-]+)/(?P<username>[A-Za-z0-9-]+)/$', PlayerView.as_view()),
 
     #invites
     url(r'^api/invite/new/$', CreatePlayerInviteView.as_view()),

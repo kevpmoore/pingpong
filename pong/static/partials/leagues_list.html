@@ -1,39 +1,32 @@
 <div>
-    <h3>Your Leagues</h3>
-    <div ng-hide="leagues.length===0">
-        <li ng-repeat="league in leagues">View Rankings for <a ng-click="goToLeague(league.league_name)">[[ league.league_name ]]</a></li>
-    </div>
-    <div ng-hide="leagues.length!==0">
-        Looks like you dont belong to any leagues.
-    </div>
     <div>
-        <h3>Your Invites</h3>
-        <div ng-hide="invites.length===0">
-            <li ng-repeat="invite in invites">
-                [[ invite.from_player_username ]] Invited you to join [[ invite.league_name ]]
-                <span class="btn-group" role="group">
-                    <button class="btn btn-success" ng-click="actionInvite(invite,'accept')">Accept</button>
-                    <button class="btn btn-danger" ng-click="actionInvite(invite,'decline')">Decline</button>
-                </span>
-            </li>
+        <h3>Your Leagues</h3>
+        <div ng-hide="leagues.length===0">
+            <li ng-repeat="league in leagues">View Rankings for <a ng-click="goToLeague(league.league_name)">[[ league.league_name ]]</a></li>
         </div>
-        <div ng-hide="invites.length!==0">
-            You currently have no invites.
-        </div>
-    </div>
-    <div>
-        <h3>Start Something New</h3>
-        <div>
-            <form data-ng-submit="createNewLeague()">
-                <div>
-                    <label for="username">League Name</label>
-                    <input ng-model="league_name" type="text" class="form-control" placeholder="Enter League Name">
-                </div>
-                <button type="submit" class="btn btn-primary">Create League</button>
-            </form>
+        <div ng-hide="leagues.length!==0">
+            Looks like you dont belong to any leagues.
         </div>
         <div>
-            <alert ng-repeat="alert in league_alert" type="[[alert.type]]" close="closeLeagueAlert($index)">[[alert.msg]]</alert>
+            <h3>Your Invites</h3>
+            <div ng-hide="invites.length===0">
+                <li ng-repeat="invite in invites">
+                    [[ invite.from_player_username ]] Invited you to join [[ invite.league_name ]]
+                    <span class="btn-group" role="group">
+                        <button class="btn btn-success" ng-click="actionInvite(invite,'accept')">Accept</button>
+                        <button class="btn btn-danger" ng-click="actionInvite(invite,'decline')">Decline</button>
+                    </span>
+                </li>
+            </div>
+            <div ng-hide="invites.length!==0">
+                You currently have no invites.
+            </div>
         </div>
+    </div>
+    <div align="center">
+        <h3>League Stuff</h3>
+        <button class="btn btn-primary btn-lg" ng-click="goToJoin()">Join A League</button>
+         <font size="4">or</font>
+        <button class="btn btn-primary btn-lg" ng-click="goToCreate()">Create A League</button>
     </div>
 </div>

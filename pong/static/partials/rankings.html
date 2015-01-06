@@ -1,48 +1,50 @@
 <div>
-    <h3>Rankings</h3>
-    <div>
-        <table class="table table-striped" style="width: 50%">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Player</th>
-                    <th>Wins</th>
-                    <th>Loses</th>
-                    <th>Rating</th>
-                </tr>
-            </thead>
-            <tbody ng-repeat="player in players | orderBy:'-rating'">
-                <tr ng-hide="player.username===currentUser.username">
-                    <td><strong>[[$index+1]]</strong></td>
-                    <td>[[player.username]]</td>
-                    <td>[[player.win_count]]</td>
-                    <td>[[player.lose_count]]</td>
-                    <td>[[player.rating | number:0]]</td>
-                </tr>
-                <tr ng-show="player.username===currentUser.username">
-                    <td><strong>[[$index+1]]</strong></td>
-                    <td><strong>[[player.username]]</strong></td>
-                    <td><strong>[[player.win_count]]</strong></td>
-                    <td><strong>[[player.lose_count]]</strong></td>
-                    <td><strong>[[player.rating | number:0]]</strong></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <h3>Add New Game</h3>
-    <div>
+    <div align="center">
+        <h3>Rankings</h3>
         <div>
-            <form ng-submit="addNewGame()">
-                <span>
-                    [[ currentUser.username ]] beat <select data-ng-model="loser" data-ng-options="player.username for player in players"></select>
-                </span>
-                <span>
-                    <button class="btn btn-primary">Submit</button>
-                </span>
-            </form>
+            <table class="table table-striped" style="width: 50%">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Wins</th>
+                        <th>Loses</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="player in players | orderBy:'-rating'">
+                    <tr ng-hide="player.username===currentUser.username">
+                        <td><strong>[[$index+1]]</strong></td>
+                        <td><a ng-click="goToStats(player.username)">[[player.username]]</a></td>
+                        <td>[[player.win_count]]</td>
+                        <td>[[player.lose_count]]</td>
+                        <td>[[player.rating | number:0]]</td>
+                    </tr>
+                    <tr ng-show="player.username===currentUser.username">
+                        <td><strong>[[$index+1]]</strong></td>
+                        <td><a ng-click="goToStats(player.username)"><strong>[[player.username]]</strong></a></td>
+                        <td><strong>[[player.win_count]]</strong></td>
+                        <td><strong>[[player.lose_count]]</strong></td>
+                        <td><strong>[[player.rating | number:0]]</strong></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+        <h3>Add New Game</h3>
         <div>
-            <alert ng-repeat="alert in game_alerts" type="[[alert.type]]" close="closeGameAlert($index)">[[alert.msg]]</alert>
+            <div>
+                <form ng-submit="addNewGame()">
+                    <span>
+                        [[ currentUser.username ]] beat <select data-ng-model="loser" data-ng-options="player.username for player in players"></select>
+                    </span>
+                    <span>
+                        <button class="btn btn-primary">Submit</button>
+                    </span>
+                </form>
+            </div>
+            <div>
+                <alert ng-repeat="alert in game_alerts" type="[[alert.type]]" close="closeGameAlert($index)">[[alert.msg]]</alert>
+            </div>
         </div>
     </div>
     <h3>Previous Results</h3>
@@ -59,18 +61,21 @@
     <div ng-hide="games.length!==0">
         No games have been played yet.
     </div>
-
-    <h3>Send An Invite</h3>
     <div>
+        <h3>Send An Invite</h3>
         <div>
             <form ng-submit="sendInvite()">
                 <div>
                     <alert ng-repeat="alert in invite_alerts" type="[[alert.type]]" close="closeInviteAlert($index)">[[alert.msg]]</alert>
                 </div>
                 <div>
-                    <label for="username">Username</label>
-                    <input ng-model="invited_user" type="text" class="form-control" placeholder="Enter Username">
-                    <button type="submit" class="btn btn-primary">Invite !</button>
+                    <label>Username</label>
+                    <span>
+                        <input style="width:300px;" ng-model="invited_user" type="text" class="form-control" placeholder="Enter Username">
+                    </span>
+                    <span>
+                        <button type="submit" class="btn btn-primary">Invite !</button>
+                    </span>
                 </div>
             </form>
         </div>

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, UserManager
-from django.db.models import F
+from django.db.models import F, Q
 
 #TODO adjust kfact for ratings level
 kFACTOR_HIGH = 35
@@ -14,15 +14,13 @@ INV_DECLINED = 2
 
 class League(models.Model):
     league_name = models.CharField(max_length=64, unique=True, null=False, blank=False)
-    league_pass = models.CharField(max_length=64)
+    league_pass = models.CharField(max_length=64) # on another day i might encrypt this field
 
     players = models.ManyToManyField('Player', through='LeaguePlayerMap', related_name='league_set')
 
 
 class Player(User):
     objects = UserManager()
-
-    # startup = models.CharField(max_length=150, blank=True, null=True)
 
     leagues = models.ManyToManyField('League', through='LeaguePlayerMap', related_name='player_set', blank=True, null=True)
 
@@ -38,6 +36,7 @@ class Game(models.Model):
     def adjust_meta_data(self):
         self.adjust_ratings()
         self.adjust_game_counts()
+        self.adjust_streaks()
 
     def adjust_ratings(self):
         assert(self.winner != self.loser)
@@ -75,6 +74,27 @@ class Game(models.Model):
             game_count=F('game_count')+1
         )
 
+    def adjust_streaks(self):
+        #first adjust the winner
+        winner_meta = LeaguePlayerMap.objects.get(league_fk=self.league, player_fk=self.winner)
+        winner_meta.win_streak += 1
+        winner_meta.lose_streak = 0
+
+        if winner_meta.win_streak > winner_meta.longest_win_streak:
+            winner_meta.longest_win_streak = winner_meta.win_streak
+
+        winner_meta.save()
+
+        #then do the same for the loser
+        loser_meta = LeaguePlayerMap.objects.get(league_fk=self.league, player_fk=self.loser)
+        loser_meta.win_streak = 0
+        loser_meta.lose_streak += 1
+
+        if loser_meta.lose_streak > loser_meta.longest_lose_streak:
+            loser_meta.longest_lose_streak = loser_meta.lose_streak
+
+        loser_meta.save()
+
     def get_kfactor(self, player_rating):
         if player_rating < 900:
             return kFACTOR_LOW
@@ -90,9 +110,23 @@ class LeaguePlayerMap(models.Model):
     game_count = models.IntegerField(default=0)
     win_count = models.IntegerField(default=0)
 
+    #stats
+    win_streak = models.IntegerField(default=0)
+    lose_streak = models.IntegerField(default=0)
+    longest_win_streak = models.IntegerField(default=0)
+    longest_lose_streak = models.IntegerField(default=0)
+    # rival = models.ForeignKey(Player, related_name='rival')
+    # most_feared = models.ForeignKey(Player, related_name='feared')
+
     player_fk = models.ForeignKey(Player, db_column='player_fk')
     league_fk = models.ForeignKey(League, db_column='league_fk')
 
+    # @property
+    # def rival(self):
+    #     try:
+    #         games = Game.objects.filter(Q(winner=self) | Q(loser=self)).or
+    #     except Exception, e:
+    #         return None
 
 class Invite(models.Model):
     league = models.ForeignKey(League)

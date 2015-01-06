@@ -16,6 +16,7 @@ from pong.league.serializers import GameSerializer, PlayerSerializer, \
 
 import random
 
+
 class IndexView(TemplateView):
 
     template_name = 'base.html'
@@ -45,20 +46,10 @@ class RegistrationView(APIView):
             player.save()
             authed = authenticate(username=username, password=password)
             login(request, authed)
-            return Response(status=status.HTTP_201_CREATED)
 
+            serialized = PlayerSerializer(player)
 
-class RandomLeaguesView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        try:
-            leagues = League.objects.all().order_by('?')[:5]
-
-            serialized = LeagueSerializer(leagues, many=True)
-            return Response(serialized.data, status=status.HTTP_200_OK)
-        except Exception, e:
-            return Response([{'type': 'danger', 'msg': 'Something horrible happened'}], status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(serialized.data, status=status.HTTP_201_CREATED)
 
 
 class PlayerLeagueView(APIView):
@@ -85,16 +76,20 @@ class PlayerLeagueView(APIView):
         Create a new league.
         """
         league_name = request.DATA['league_name']
+        league_pass = request.DATA['league_pass']
 
         if ' ' in league_name:
-            return Response([{'type': 'danger', 'msg': 'Sorry, im super lazy.. No spaces in league names yet please.'}], status=status.HTTP_403_FORBIDDEN)
+            return Response([{'type': 'danger', 'msg': 'Sorry boss, im super lazy.. No spaces in league names yet please.'}], status=status.HTTP_403_FORBIDDEN)
         pre_existing = League.objects.filter(league_name__iexact=league_name)
 
         if len(pre_existing) is not 0 or league_name == '':
-            return Response({'error': 'Invalid league name'}, status=status.HTTP_403_FORBIDDEN)
+            return Response([{'type': 'danger', 'msg': 'Invalid league name'}], status=status.HTTP_403_FORBIDDEN)
+
+        if league_pass is None or league_pass == '':
+            return Response([{'type': 'danger', 'msg': 'League passes are useful.. please add one.'}], status=status.HTTP_403_FORBIDDEN)
 
         player = Player.objects.get(id=request.user.id)
-        league = League.objects.create(league_name=league_name)
+        league = League.objects.create(league_name=league_name, league_pass=league_pass)
 
         LeaguePlayerMap.objects.create(league_fk=league, player_fk=player)
 
@@ -194,6 +189,28 @@ class LeagueGamesView(APIView):
         r = random.randint(0, len(win_msg)-1)
 
         return Response([{'type': 'success', 'msg': win_msg[r]}], status=status.HTTP_200_OK)
+
+
+class LeagueJoinView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        league_name = request.DATA['league_name']
+        league_pass = request.DATA['league_pass']
+        player = Player.objects.get(id=request.user.id)
+
+        try:
+            league = League.objects.get(league_name__iexact=league_name, league_pass=league_pass)
+            if league is not None:
+                try:
+                    LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+                    return Response([{'type': 'danger', 'msg': 'You\'re already part of this league'}], status=status.HTTP_403_FORBIDDEN)
+                except ObjectDoesNotExist:
+                    LeaguePlayerMap.objects.create(league_fk=league, player_fk=player)
+        except ObjectDoesNotExist:
+            return Response([{'type': 'danger', 'msg': 'Sorry boss, wrong league name & pass combo'}], status=status.HTTP_403_FORBIDDEN)
+
+        return Response([{'type': 'success', 'msg': 'You\'re in !'}], status=status.HTTP_202_ACCEPTED)
 
 
 class CreatePlayerInviteView(APIView):
@@ -299,3 +316,18 @@ class LogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
+
+
+class PlayerView(APIView):
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request, league_name, username):
+        try:
+            player = Player.objects.get(username__iexact=username)
+            league = League.objects.get(league_name__iexact=league_name)
+
+            serialized = PlayerSerializer(player, context={'league': league})
+
+            return Response(serialized.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

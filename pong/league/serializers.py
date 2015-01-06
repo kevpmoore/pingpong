@@ -39,6 +39,42 @@ class PlayerSerializer(serializers.ModelSerializer):
     win_count = serializers.SerializerMethodField()
     lose_count = serializers.SerializerMethodField()
     game_count = serializers.SerializerMethodField()
+    win_streak = serializers.SerializerMethodField()
+    lose_streak = serializers.SerializerMethodField()
+    longest_win_streak = serializers.SerializerMethodField()
+    longest_lose_streak = serializers.SerializerMethodField()
+
+    def get_win_streak(self, player):
+        try:
+            league = self.context['league']
+            league_player_map = LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+            return league_player_map.win_streak
+        except Exception, e:
+            return None
+
+    def get_longest_win_streak(self, player):
+        try:
+            league = self.context['league']
+            league_player_map = LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+            return league_player_map.longest_win_streak
+        except Exception, e:
+            return None
+
+    def get_lose_streak(self, player):
+        try:
+            league = self.context['league']
+            league_player_map = LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+            return league_player_map.lose_streak
+        except Exception, e:
+            return None
+
+    def get_longest_lose_streak(self, player):
+        try:
+            league = self.context['league']
+            league_player_map = LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+            return league_player_map.longest_lose_streak
+        except Exception, e:
+            return None
 
     def get_win_count(self, player):
         try:
@@ -74,7 +110,8 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ('username','id', 'rating', 'win_count', 'lose_count', 'game_count',)
+        fields = ('username', 'id', 'rating', 'win_count', 'lose_count', 'game_count',
+                  'win_streak', 'lose_streak', 'longest_win_streak', 'longest_lose_streak')
 
 
 class InviteSerializer(serializers.ModelSerializer):

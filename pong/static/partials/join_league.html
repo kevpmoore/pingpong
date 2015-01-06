@@ -1,0 +1,19 @@
+<div>
+    <h3>Join a League</h3>
+    <div>
+        <form data-ng-submit="joinLeague()">
+            <div>
+                <label>League Name</label>
+                <input style="width:300px;" ng-model="join_league_name" type="text" class="form-control" placeholder="Enter League Name">
+            </div>
+            <div>
+                <label>League Password</label>
+                <input style="width:300px;" ng-model="join_league_pass" type="text" class="form-control" placeholder="Enter League Password">
+            </div>
+            <button type="submit" class="btn btn-primary">Join League</button>
+        </form>
+    </div>
+    <div>
+        <alert ng-repeat="join_alert in join_league_alert" type="[[join_alert.type]]" close="closeJoinAlert($index)">[[join_alert.msg]]</alert>
+    </div>
+</div>
