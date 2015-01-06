@@ -1,4 +1,4 @@
-var app = angular.module('MarvelPong', ['ngRoute','ui.bootstrap']);
+var app = angular.module('Pong', ['ngRoute','ui.bootstrap']);
 
 app.config(function($interpolateProvider, $routeProvider, $httpProvider) {
     $interpolateProvider.startSymbol('[[');
