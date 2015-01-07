@@ -14,6 +14,6 @@
         </form>
     </div>
     <div>
-        <alert ng-repeat="join_alert in join_league_alert" type="[[join_alert.type]]" close="closeJoinAlert($index)">[[join_alert.msg]]</alert>
+        <alert ng-repeat="join_alert in join_league_alert track by $index" type="[[join_alert.type]]" close="closeJoinAlert($index)">[[join_alert.msg]]</alert>
     </div>
 </div>

@@ -54,7 +54,7 @@ class RegistrationView(APIView):
 
 class PlayerLeagueView(APIView):
 
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
         """
