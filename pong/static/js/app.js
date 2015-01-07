@@ -40,6 +40,13 @@ app.controller('RegisterController', ['$scope', '$http', '$location',
         };
 
         $scope.login = function() {
+            if ($scope.player.username.indexOf('_') > -1) {
+                $scope.alerts.push({
+                    'type': 'warning',
+                    'msg': 'Underscores in usernames and league names are currently blowing some things up. Be cool about it'
+                });
+                return;
+            }
             $http.post('api/new-player/', $scope.player).success(
                 function(resp) {
                     $scope.$parent.currentUser = resp;
@@ -174,6 +181,13 @@ app.controller('CreateLeagueController', ['$scope', '$http', '$location',
 
 
         $scope.createNewLeague = function() {
+            if ($scope.league_name.indexOf('_') > -1) {
+                $scope.league_alert.push({
+                    'type': 'warning',
+                    'msg': 'Underscores in usernames and league names are currently blowing some things up. Be cool about it'
+                });
+                return;
+            }
             var data = {
                 'league_name': $scope.league_name,
                 'league_pass': $scope.league_pass
