@@ -5,7 +5,8 @@ app.config(function($interpolateProvider, $routeProvider, $httpProvider) {
     $interpolateProvider.endSymbol(']]');
 
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken'
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
 
     $routeProvider
         .when('/', {controller: 'RegisterController', templateUrl: 'static/partials/register.html'})
@@ -310,6 +311,8 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
         $scope.game_alerts = [];
         $scope.invite_alerts = [];
 //        $scope.loggedInUser = "";
+        var old_ranks = [];
+        var new_ranks = [];
 
         initialize = function() {
             $scope.league_name = $routeParams.league_name;
@@ -320,18 +323,27 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                 }
             );
 
-//            $http.get('api/login/').success(
-//                function(resp) {
-//                    $scope.loggedInUser = resp['username'];
-//                }
-//            );
-
             $http.get('api/leagues/games/' + $scope.league_name + '/')
             .success(
                 function(resp) {
                     $scope.games = resp;
                 }
             );
+        };
+
+        makeNewRanks = function() {
+            new_ranks = angular.copy($scope.players);
+
+            new_ranks.sort(function(a,b) {
+                return b['rating']-a['rating']
+            });
+        };
+
+        makeOldRanks = function() {
+            old_ranks = angular.copy($scope.players);
+            old_ranks.sort(function(a,b) {
+                return b['rating']-a['rating'];
+            });
         };
 
         $scope.sendInvite = function() {
@@ -351,6 +363,157 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
             );
         };
 
+        slackIt = function(winner, loser) {
+            //determine a message by getting relative positions
+            var old_win_pos, win_pos, old_lose_pos, lose_pos;
+
+            //I should really do sorting or the b/e but whatever..
+//            var new_ranks = $scope.players;
+//            new_ranks.sort(function(a,b) {
+//                return b['rating']-a['rating']
+//            });
+
+            for(var i = 0; i < old_ranks.length; i++) {
+                if(old_ranks[i].username === winner) {
+                    old_win_pos = i+1;
+                    continue;
+                }
+
+                if(old_ranks[i].username === loser) {
+                    old_lose_pos = i+1;
+                }
+            }
+
+            for(var j = 0; j < new_ranks.length; j++) {
+                if(new_ranks[j].username === winner) {
+                    win_pos = j+1;
+                    continue;
+                }
+                if(new_ranks[j].username === loser) {
+                    lose_pos = j+1;
+                }
+            }
+
+            var data =  {
+                'old_winner_pos': old_win_pos,
+                'old_loser_pos': old_lose_pos,
+                'winner_pos': win_pos,
+                'loser_pos': lose_pos,
+                'win_user': winner,
+                'lose_user': loser
+            };
+
+            var message = determineAwesomeMessage(data, new_ranks);
+
+            message = message + ' -> <http://pong-app.io/#/league/marvel-pong/|Rankings!>';
+            var hook = 'https://hooks.slack.com/services/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';
+
+            $http.post('api/slack-it/', { "hook": hook, "msg": message});
+        };
+
+        determineAwesomeMessage = function(data, new_ranks) {
+            var msg = '';
+            var p = old_ranks.length - 1;
+            var x = Math.floor((Math.random() * 2) + 1);
+
+            //if 1st place now different
+            if(old_ranks[0].username !== new_ranks[0].username) {
+                //if 1st place lost
+                if(data['lose_user'] === old_ranks[0].username) {
+                    msg = data['lose_user']
+                        + ' crumbles under pressure from '
+                        + data['win_user']
+                        + ' to give '
+                        + new_ranks[0].username
+                        + ' the top spot';
+                }
+                else {
+                    //if other place overtook 1st
+                    msg = data['win_user']
+                        + ' sweeps '
+                        + data['lose_user']
+                        + ' aside to take the top spot from '
+                        + old_ranks[0].username
+                        + '. The rankings are heating up.';
+                }
+            }
+            //if last place is now different
+            else if (old_ranks[p].username !== new_ranks[p].username) {
+                //did lower move themselves up ?
+                if (old_ranks[p].username === data['win_user']) {
+                     msg = data['win_user']
+                        + ' with an unanticipated win over '
+                        + data['lose_user']
+                        + '. Sending '
+                        + new_ranks[p].username
+                        + 'to the bottom. Its a dogfight down there!';
+                }
+                //did lower lose and move to the bottom
+                else {
+                    msg = data['win_user']
+                        + ' held no prisoners against'
+                        + data['lose_user']
+                        + ' and sends him right into the gutter of the league';
+                }
+
+            //lower beat upper
+            } else if(data['old_winner_pos'] > data['old_loser_pos']) {
+                if (x === 1) {
+                    msg = data['win_user']
+                        + ' pulls off a magnificent victory against '
+                        + data['lose_user']
+                        + '. The bookies had him at 60/1 to win today.';
+                } else {
+                    msg = data['win_user']
+                        + ' rope-a-dopes '
+                        + data['lose_user']
+                        + ' to a magnificent victory.'
+                }
+            //upper beat lower
+            } else {
+                if (data['old_winner_pos'] > data['winner_pos']) {
+                    if (x === 1) {
+                        msg = 'Routine victory from '
+                            + data['win_user']
+                            + ' against '
+                            + data['lose_user']
+                            + '. '
+                            + new_ranks[data['win'] + 1].username
+                            + ' will nervous after that result.'
+                    } else {
+                        msg = 'Its all change in the rankings after '
+                            + data['win_user']
+                            + ' claims victory over '
+                            + data['loser_user']
+                    }
+                } else {
+                    if (x === 1) {
+                        msg = data['win_user']
+                            + ' solidifies the number '
+                            + data['winner_pos']
+                            + ' spot by beating '
+                            + data['lose_user']
+                            + ' who is now in spot '
+                            + data['loser_pos'];
+                    } else if (data['old_winner_pos'] === 1 && data['winner_pos'] === 1) {
+                        msg = data['win_user']
+                            + ' defends the top spot against '
+                            + data['lose_user']
+                            + ', to become undisputed. Who can stop the lad ?!'
+                    } else {
+                        msg = 'Im not sure the fans expected anything else as '
+                            + data['win_user']
+                            + ' beats '
+                            + data['lose_user']
+                            + '. ' + new_ranks[data['loser_pos']+1].username
+                            + ' will be happy with that.'
+                    }
+                }
+            }
+
+            return msg;
+        };
+
         $scope.addNewGame = function() {
             var data = {
                 'loser' : $scope.loser.username,
@@ -360,8 +523,23 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
             $http.post('api/leagues/games/', data)
             .success(
                 function(resp) {
-                    initialize();
+                    makeOldRanks();
+                    $http.get('api/leagues/' + $scope.league_name).success(
+                        function (resp) {
+                            $scope.players = resp;
+                            makeNewRanks();
+                            slackIt($scope.$parent.currentUser.username, data['loser'])
+                        }
+                    );
+
+                    $http.get('api/leagues/games/' + $scope.league_name + '/')
+                    .success(
+                        function(resp) {
+                            $scope.games = resp;
+                        }
+            );
                     $scope.game_alerts = resp;
+
                 }
             )
             .error(

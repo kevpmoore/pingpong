@@ -5,4 +5,5 @@ bpython==0.13.1
 djangorestframework==3.0.2
 gnureadline==6.3.3
 ipdb==0.8
+requests==2.5.1
 wsgiref==0.1.2

@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
+import requests, json
 
 from decorators import league_membership_required
 from models import League, Player, Game, LeaguePlayerMap, Invite, INV_PENDING, \
@@ -331,3 +332,21 @@ class PlayerView(APIView):
             return Response(serialized.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class SlackView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+
+        hook = request.DATA['hook']
+        msg = request.DATA['msg']
+
+        requests.post(
+            hook,
+            data=json.dumps({'text': msg}),
+            headers={'Content-Type': 'application/json'},
+        )
+
+        return Response(status=200)
+

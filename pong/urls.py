@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 from pong.league.views import IndexView, RegistrationView, PlayerLeagueView, \
     LeagueGamesView, ActionPlayerInviteView, CreatePlayerInviteView, LoginView, LogoutView, \
-    PlayerRankingsView, LeagueHistoryView, LeagueJoinView, PlayerView
+    PlayerRankingsView, LeagueHistoryView, LeagueJoinView, PlayerView, SlackView
 
 
 urlpatterns = patterns('',
@@ -29,5 +29,8 @@ urlpatterns = patterns('',
 
     #invites
     url(r'^api/invite/new/$', CreatePlayerInviteView.as_view()),
-    url(r'^api/invite/action/$', ActionPlayerInviteView.as_view())
+    url(r'^api/invite/action/$', ActionPlayerInviteView.as_view()),
+
+    #stuff
+    url(r'^api/slack-it/$', SlackView.as_view())
 )

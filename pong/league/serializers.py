@@ -43,6 +43,24 @@ class PlayerSerializer(serializers.ModelSerializer):
     lose_streak = serializers.SerializerMethodField()
     longest_win_streak = serializers.SerializerMethodField()
     longest_lose_streak = serializers.SerializerMethodField()
+    # should_fear = serializers.SerializerMethodField()
+    # easy_pickings = serializers.SerializerMethodField()
+
+    # def get_easy_pickings(self, player):
+    #     try:
+    #         league = self.context['league']
+    #         league_player_map = LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+    #         return league_player_map.easy_pickings
+    #     except Exception, e:
+    #         return None
+
+    # def get_should_fear(self, player):
+    #     try:
+    #         league = self.context['league']
+    #         league_player_map = LeaguePlayerMap.objects.get(player_fk=player, league_fk=league)
+    #         return league_player_map.should_fear
+    #     except Exception, e:
+    #         return None
 
     def get_win_streak(self, player):
         try:
