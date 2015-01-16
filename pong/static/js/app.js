@@ -478,7 +478,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                             + ' against '
                             + data['lose_user']
                             + '. '
-                            + new_ranks[data['win'] + 1].username
+                            + new_ranks[data['win'] - 1].username
                             + ' will nervous after that result.'
                     } else {
                         msg = 'Its all change in the rankings after '
@@ -505,8 +505,8 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                             + data['win_user']
                             + ' beats '
                             + data['lose_user']
-                            + '. ' + new_ranks[data['loser_pos']+1].username
-                            + ' will be happy with that.'
+                            + '. ' + new_ranks[data['loser_pos']-1].username
+                            + ' will be happy with that result.'
                     }
                 }
             }
