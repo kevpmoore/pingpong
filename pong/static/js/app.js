@@ -41,13 +41,13 @@ app.controller('RegisterController', ['$scope', '$http', '$location',
         };
 
         $scope.login = function() {
-            if ($scope.player.username.indexOf('_') > -1) {
-                $scope.alerts.push({
-                    'type': 'warning',
-                    'msg': 'Underscores in usernames and league names are currently blowing some things up. Be cool about it'
-                });
-                return;
-            }
+//            if ($scope.player.username.indexOf('_') > -1) {
+//                $scope.alerts.push({
+//                    'type': 'warning',
+//                    'msg': 'Underscores in usernames and league names are currently blowing some things up. Be cool about it'
+//                });
+//                return;
+//            }
             $http.post('api/new-player/', $scope.player).success(
                 function(resp) {
                     $scope.$parent.currentUser = resp;
