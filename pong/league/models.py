@@ -124,32 +124,31 @@ class LeaguePlayerMap(models.Model):
     player_fk = models.ForeignKey(Player, db_column='player_fk')
     league_fk = models.ForeignKey(League, db_column='league_fk')
 
-    # @property
-    # def easy_pickings(self):
-    #     try:
-    #         ret = Game.objects.filter(winner=self.player_fk).annotate(c=Count('loser')).order_by('-c')[0]
-    #         return ret.loser.username
-    #     except Exception, e:
-    #         return None
-    #
-    # @property
-    # def should_fear(self):
-    #     try:
-    #         ret = Game.objects.filter(loser=self.player_fk).annotate(c=Count('winner')).order_by('-c')[0]
-    #         return ret.winner.username
-    #     except Exception, e:
-    #         return None
-
-    # @property
-    # def rival(self):
-    #     try:
-    #         games = Game.objects.filter(Q(winner=self) | Q(loser=self)).or
-    #     except Exception, e:
-    #         return None
-
 
 class Invite(models.Model):
     league = models.ForeignKey(League)
     from_player = models.ForeignKey(Player, related_name='inviter')
     to_player = models.ForeignKey(Player, related_name='invited')
     status = models.IntegerField(default=INV_PENDING)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from pong.league.views import IndexView, RegistrationView, PlayerLeagueView, \
     LeagueGamesView, ActionPlayerInviteView, CreatePlayerInviteView, LoginView, LogoutView, \
     PlayerRankingsView, LeagueHistoryView, LeagueJoinView, PlayerView, SlackView
-
+from pong.tournament.views import *
 
 urlpatterns = patterns('',
     # Examples:
@@ -26,6 +26,12 @@ urlpatterns = patterns('',
     url(r'^api/leagues/games/(?P<league_name>[A-Za-z0-9-_]+)/$', LeagueHistoryView.as_view()),
     url(r'^api/leagues/join/$', LeagueJoinView.as_view()),
     url(r'^api/leagues/(?P<league_name>[A-Za-z0-9-_]+)/(?P<username>[A-Za-z0-9-_]+)/$', PlayerView.as_view()),
+
+    #tournaments
+    url(r'^api/create-tournament/$', TournamentView.as_view()),
+    url(r'^api/create-tournament/(?P<league_name>[A-Za-z0-9-_]+)/$', TournamentView.as_view()),
+    url(r'^api/tournament_active/$', TournamentFeature.as_view()),
+    url(r'^api/tournament/(?P<tournament_name>[A-Za-z0-9-_]+)/$', TournamentGamesView.as_view()),
 
     #invites
     url(r'^api/invite/new/$', CreatePlayerInviteView.as_view()),

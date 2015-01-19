@@ -12,6 +12,7 @@ app.config(function($interpolateProvider, $routeProvider, $httpProvider) {
         .when('/', {controller: 'RegisterController', templateUrl: 'static/partials/register.html'})
         .when('/leagues/', {controller: 'LeaguesController', templateUrl: 'static/partials/leagues_list.html'})
         .when('/league/:league_name/', {controller: 'RankingsController', templateUrl: 'static/partials/rankings.html'})
+        .when('/tournament/:tournament_name/', {controller: 'TournamentController', templateUrl: 'static/partials/tournament.html'})
         .when('/login/', {controller: 'LoginController', templateUrl: 'static/partials/login.html'})
         .when('/join-league/', {controller: 'JoinLeagueController', templateUrl: 'static/partials/join_league.html'})
         .when('/create-league/', {controller: 'CreateLeagueController', templateUrl: 'static/partials/create_league.html'})
@@ -310,6 +311,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
         $scope.invited_user = "";
         $scope.game_alerts = [];
         $scope.invite_alerts = [];
+        $scope.tournament_feature_active = false;
 //        $scope.loggedInUser = "";
         var old_ranks = [];
         var new_ranks = [];
@@ -329,6 +331,13 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                     $scope.games = resp;
                 }
             );
+
+            $http.get('api/tournament_active/')
+            .success(
+                function(resp) {
+                    $scope.tournament_feature_active = resp;
+                }
+            )
         };
 
         makeNewRanks = function() {
@@ -537,7 +546,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                         function(resp) {
                             $scope.games = resp;
                         }
-            );
+                    );
                     $scope.game_alerts = resp;
 
                 }
@@ -561,6 +570,48 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
             $scope.invite_alerts.splice(index, 1);
         };
 
+        $scope.tournament_name = "";
+
+        $scope.createNewTournament = function() {
+            var data = {
+                'league_name':$scope.league_name,
+                'tournament_name': $scope.tournament_name
+            };
+
+            $http.post('api/create-tournament/', data)
+            .success(
+                function(resp) {
+                    $location.url('/tournament/' + $scope.tournament_name + '/')
+                }
+            )
+            .error(
+                function(resp) {
+                    debugger;
+                }
+                //todo
+            );
+        };
+
         initialize();
     }
 ]);
+
+//app.controller('TournamentController', ['$scope', '$http', '$location',
+//    function($scope, $http, $location) {
+//
+//        $scope.games = [];
+//
+//        initialize = function() {
+//            $scope.tournament_name = $routeParams.tournament_name;
+//
+//            $http.get('api/tournament/' + $scope.tournament_name)
+//            .success(
+//                function(resp) {
+//                    $scope.games = resp;
+//                }
+//            )
+//        };
+//
+//        initialize();
+//    }
+//]);

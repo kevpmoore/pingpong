@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'pong',
     'pong.league',
+    'pong.tournament',
     'rest_framework',
     'south'
 )

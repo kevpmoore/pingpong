@@ -349,4 +349,3 @@ class SlackView(APIView):
         )
 
         return Response(status=200)
-
