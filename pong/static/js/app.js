@@ -273,7 +273,10 @@ app.controller('StatsController', ['$scope', '$http', '$location', '$routeParams
 
             $http.get('api/leagues/' + $scope.league_name + '/' + username + '/')
             .success(
+
                 function(resp) {
+                    debugger;
+                    $scope.currentUser = $scope.$parent.currentUser;
                     $scope.stats = resp;
                 }
             );
@@ -455,7 +458,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                         + data['lose_user']
                         + '. Sending '
                         + new_ranks[p].username
-                        + 'to the bottom. Its a dogfight down there!';
+                        + ' to the bottom. Its a dogfight down there!';
                 }
                 //did lower lose and move to the bottom
                 else {
@@ -487,7 +490,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                             + ' against '
                             + data['lose_user']
                             + '. '
-                            + new_ranks[data['win'] - 1].username
+                            + new_ranks[data['win'] - 2].username
                             + ' will nervous after that result.'
                     } else {
                         msg = 'Its all change in the rankings after '
@@ -514,7 +517,7 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                             + data['win_user']
                             + ' beats '
                             + data['lose_user']
-                            + '. ' + new_ranks[data['loser_pos']-1].username
+                            + '. ' + new_ranks[data['loser_pos'] - 2].username
                             + ' will be happy with that result.'
                     }
                 }

@@ -324,10 +324,15 @@ class PlayerView(APIView):
 
     def get(self, request, league_name, username):
         try:
+            ctx = {}
             player = Player.objects.get(username__iexact=username)
             league = League.objects.get(league_name__iexact=league_name)
+            if request.user.is_authenticated:
+                user = Player.objects.get(id=request.user.id)
+                ctx['user'] = user
 
-            serialized = PlayerSerializer(player, context={'league': league})
+            ctx['league'] = league
+            serialized = PlayerSerializer(player, context=ctx)
 
             return Response(serialized.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:

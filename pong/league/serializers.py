@@ -43,9 +43,19 @@ class PlayerSerializer(serializers.ModelSerializer):
     lose_streak = serializers.SerializerMethodField()
     longest_win_streak = serializers.SerializerMethodField()
     longest_lose_streak = serializers.SerializerMethodField()
+    head_to_head = serializers.SerializerMethodField()
     # should_fear = serializers.SerializerMethodField()
     # easy_pickings = serializers.SerializerMethodField()
 
+    def get_head_to_head(self, player):
+        try:
+            league = self.context['league']
+            user = self.context.get('user', None)
+            your_wins = Game.objects.filter(winner=user, loser=player).count()
+            your_loses = Game.objects.filter(winner=player, loser=user).count()
+            return {'your_wins': your_wins, 'your_loses': your_loses}
+        except Exception, e:
+            return {'your_wins': 'not sure', 'your_loses': '.. still not sure. Are you logged in ?'}
     # def get_easy_pickings(self, player):
     #     try:
     #         league = self.context['league']
@@ -129,7 +139,8 @@ class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ('username', 'id', 'rating', 'win_count', 'lose_count', 'game_count',
-                  'win_streak', 'lose_streak', 'longest_win_streak', 'longest_lose_streak')
+                  'win_streak', 'lose_streak', 'longest_win_streak', 'longest_lose_streak',
+                  'head_to_head')
 
 
 class InviteSerializer(serializers.ModelSerializer):
