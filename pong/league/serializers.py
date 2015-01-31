@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from pong.league.models import Game, Player, League, LeaguePlayerMap, Invite
+from pong.league.models import *
 
 
 class LeagueSerializer(serializers.ModelSerializer):
@@ -167,3 +167,19 @@ class InviteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invite
         fields = ('from_player', 'from_player_username', 'to_player', 'id', 'league_name', 'status')
+
+
+class PositionHistorySerializer(serializers.ModelSerializer):
+
+    username = serializers.SerializerMethodField()
+
+    def get_username(self, history):
+        try:
+            username = history.player_fk.username
+            return username
+        except Exception,e:
+            return None
+
+    class Meta:
+        model = PositionHistory
+        fields = ('position', 'username', 'date')

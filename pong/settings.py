@@ -9,7 +9,12 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from __future__ import absolute_import
+from celery.schedules import crontab
 import os
+
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -51,7 +56,8 @@ INSTALLED_APPS = (
     'pong.league',
     'pong.tournament',
     'rest_framework',
-    'south'
+    'south',
+    'djcelery'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -115,3 +121,12 @@ STATICFILES_DIRS = (
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+# BROKER_URL = "amqp://dean:passw0rdd@localhost:5672/pong"
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    'log-rank': {
+        'task': 'pong.league.tasks.log_rank',
+        'schedule': crontab(hour=23, minute=30)
+    },
+}

@@ -11,9 +11,9 @@ import requests, json
 
 from decorators import league_membership_required
 from models import League, Player, Game, LeaguePlayerMap, Invite, INV_PENDING, \
-    INV_ACCEPTED, INV_DECLINED
+    INV_ACCEPTED, INV_DECLINED, PositionHistory
 from pong.league.serializers import GameSerializer, PlayerSerializer, \
-    LeagueSerializer, InviteSerializer
+    LeagueSerializer, InviteSerializer, PositionHistorySerializer
 
 import random
 
@@ -337,6 +337,22 @@ class PlayerView(APIView):
             return Response(serialized.data, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class PositionHistoryView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, league_name):
+
+        league_history = []
+        league = League.objects.get(league_name=league_name)
+
+        for player in league.player_set.all():
+            history = PositionHistory.objects.filter(league_fk=league, player_fk=player)[:21]
+            serialized = PositionHistorySerializer(history, many=True)
+            league_history.append(serialized.data)
+
+        return Response(league_history, status=status.HTTP_200_OK)
 
 
 class SlackView(APIView):

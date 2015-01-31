@@ -132,8 +132,17 @@ class Invite(models.Model):
     status = models.IntegerField(default=INV_PENDING)
 
 
+class PositionHistory(models.Model):
+    position = models.IntegerField()
+    date = models.DateField()
 
+    player_fk = models.ForeignKey(Player)
+    league_fk = models.ForeignKey(League)
+    # league_player_fk = models.ForeignKey(LeaguePlayerMap, related_name='player_history')
 
+    class Meta:
+        unique_together = ('player_fk', 'league_fk', 'date')
+        ordering = ['date']
 
 
 

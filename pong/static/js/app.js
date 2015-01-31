@@ -418,9 +418,12 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
             var message = determineAwesomeMessage(data, new_ranks);
 
             message = message + ' -> <http://pong-app.io/#/league/marvel-pong/|Rankings!>';
+
             var hook = 'https://hooks.slack.com/services/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';
 
-            $http.post('api/slack-it/', { "hook": hook, "msg": message});
+            if ($scope.league_name === 'marvel-pong') {
+                $http.post('api/slack-it/', { "hook": hook, "msg": message});
+            }
         };
 
         determineAwesomeMessage = function(data, new_ranks) {
