@@ -182,4 +182,4 @@ class PositionHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PositionHistory
-        fields = ('position', 'username', 'date')
+        fields = ('rating', 'username', 'date')

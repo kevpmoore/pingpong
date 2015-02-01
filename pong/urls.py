@@ -3,7 +3,8 @@ from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 from pong.league.views import IndexView, RegistrationView, PlayerLeagueView, \
     LeagueGamesView, ActionPlayerInviteView, CreatePlayerInviteView, LoginView, LogoutView, \
-    PlayerRankingsView, LeagueHistoryView, LeagueJoinView, PlayerView, SlackView
+    PlayerRankingsView, LeagueHistoryView, LeagueJoinView, PlayerView, SlackView, \
+    PositionHistoryView
 from pong.tournament.views import *
 
 urlpatterns = patterns('',
@@ -20,12 +21,14 @@ urlpatterns = patterns('',
     url(r'^api/logout/$', LogoutView.as_view()),
 
     #leagues
+    url(r'^api/leagues/graph/(?P<league_name>[A-Za-z0-9-_]+)/$', PositionHistoryView.as_view()),
     url(r'^api/leagues/$', PlayerLeagueView.as_view()),
     url(r'^api/leagues/(?P<league_name>[A-Za-z0-9-_]+)$', PlayerRankingsView.as_view()),
     url(r'^api/leagues/games/$', LeagueGamesView.as_view()),
     url(r'^api/leagues/games/(?P<league_name>[A-Za-z0-9-_]+)/$', LeagueHistoryView.as_view()),
     url(r'^api/leagues/join/$', LeagueJoinView.as_view()),
     url(r'^api/leagues/(?P<league_name>[A-Za-z0-9-_]+)/(?P<username>[A-Za-z0-9-_]+)/$', PlayerView.as_view()),
+
 
     #tournaments
     url(r'^api/create-tournament/$', TournamentView.as_view()),

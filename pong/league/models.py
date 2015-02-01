@@ -115,11 +115,6 @@ class LeaguePlayerMap(models.Model):
     lose_streak = models.IntegerField(default=0)
     longest_win_streak = models.IntegerField(default=0)
     longest_lose_streak = models.IntegerField(default=0)
-    # easy_pickings = models.CharField(max_length=128)
-    # easy_picking_games = None
-
-    # rival = models.ForeignKey(Player, related_name='rival')
-    # most_feared = models.ForeignKey(Player, related_name='feared')
 
     player_fk = models.ForeignKey(Player, db_column='player_fk')
     league_fk = models.ForeignKey(League, db_column='league_fk')
@@ -133,7 +128,7 @@ class Invite(models.Model):
 
 
 class PositionHistory(models.Model):
-    position = models.IntegerField()
+    rating = models.FloatField()
     date = models.DateField()
 
     player_fk = models.ForeignKey(Player)
