@@ -46,6 +46,10 @@
                 <alert ng-repeat="alert in game_alerts" type="[[alert.type]]" close="closeGameAlert($index)">[[alert.msg]]</alert>
             </div>
         </div>
+        <h3>League Progression</h3>
+        <div align="center">
+            <linechart data="graphData" options="options" mode="" width="750" height="550"></linechart>
+        </div>
     </div>
     <h3>Previous Results</h3>
     <div ng-hide="games.length===0">

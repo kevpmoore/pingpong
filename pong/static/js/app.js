@@ -1,4 +1,4 @@
-var app = angular.module('Pong', ['ngRoute','ui.bootstrap']);
+var app = angular.module('Pong', ['ngRoute','ui.bootstrap', 'n3-line-chart']);
 
 app.config(function($interpolateProvider, $routeProvider, $httpProvider) {
     $interpolateProvider.startSymbol('[[');
@@ -315,9 +315,37 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
         $scope.game_alerts = [];
         $scope.invite_alerts = [];
         $scope.tournament_feature_active = false;
-//        $scope.loggedInUser = "";
+        $scope.graphData = [];
+
+        $scope.options = {
+            lineMode: "cardinal",
+            tension: 0.7,
+            axes: {x: {type: "date", key: "date"}, y: {type: "linear"}},
+            tooltipMode: "dots",
+            drawLegend: true,
+            drawDots: true,
+            stacks: [],
+            series: [],
+            tooltip: {
+                mode: "scrubber",
+                formatter: function (x, y, series) {
+                    return series.id + ' : ' + y;
+                }
+            },
+            columnsHGap: 3
+        };
+
         var old_ranks = [];
         var new_ranks = [];
+
+        function getRandomColor() {
+            var letters = '3456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.floor(Math.random() * 13)];
+            }
+            return color;
+        }
 
         initialize = function() {
             $scope.league_name = $routeParams.league_name;
@@ -340,7 +368,61 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                 function(resp) {
                     $scope.tournament_feature_active = resp;
                 }
+            );
+
+
+            $http.get('api/leagues/graph/' + $scope.league_name + '/')
+            .success(
+                function(resp) {
+                    organiseChartData(resp);
+                }
             )
+        };
+
+        organiseChartData = function(chartData) {
+            var transformedData = {};
+
+            for (var i = 0; i < chartData.length; i++) {
+                var player = chartData[i];
+                for (var j = 0; j < player.length; j ++) {
+                    if (!transformedData[player[j]['date']]) {
+                        //add the date
+                        transformedData[player[j]['date']] = {};
+                    }
+                    //get the date
+                    var date = transformedData[player[j]['date']];
+                    //add player position
+                    date[player[j]['username']] = Math.round(player[j]['rating']);
+                }
+            }
+
+            var x = 0;
+            for (var key in transformedData) {
+                if (transformedData.hasOwnProperty(key)) {
+                    var playerPositions = transformedData[key];
+                    playerPositions['date'] = new Date(key);
+                    $scope.graphData.push(playerPositions);
+                }
+            }
+            //assign series
+            for (var n in $scope.graphData[0]) {
+                if ($scope.graphData[0].hasOwnProperty(n) && n !== 'date') {
+                    var obj = {
+                        y: n,
+                        label: n,
+                        type: "line",
+                        color: getRandomColor(),
+                        axis: "y",
+                        thickness: n === $scope.currentUser.username ? "3px" : "1px",
+                        visible: true,
+                        id: n,
+                        drawDots: true
+                    };
+
+                    $scope.options.series.push(obj);
+                }
+            }
+            debugger;
         };
 
         makeNewRanks = function() {
@@ -380,11 +462,6 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
             var old_win_pos, win_pos, old_lose_pos, lose_pos;
 
             //I should really do sorting or the b/e but whatever..
-//            var new_ranks = $scope.players;
-//            new_ranks.sort(function(a,b) {
-//                return b['rating']-a['rating']
-//            });
-
             for(var i = 0; i < old_ranks.length; i++) {
                 if(old_ranks[i].username === winner) {
                     old_win_pos = i+1;
