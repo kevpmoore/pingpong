@@ -422,7 +422,6 @@ app.controller('RankingsController', ['$scope', '$http', '$location', '$routePar
                     $scope.options.series.push(obj);
                 }
             }
-            debugger;
         };
 
         makeNewRanks = function() {
