@@ -348,7 +348,7 @@ class PositionHistoryView(APIView):
         league = League.objects.get(league_name=league_name)
 
         for player in league.player_set.all():
-            history = PositionHistory.objects.filter(league_fk=league, player_fk=player)[21:]
+            history = PositionHistory.objects.filter(league_fk=league, player_fk=player)[-21:]
             serialized = PositionHistorySerializer(history, many=True)
             league_history.append(serialized.data)
 
