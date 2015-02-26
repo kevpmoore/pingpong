@@ -7,7 +7,8 @@ from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
-import requests, json
+import requests,json
+from datetime import timedelta, datetime
 
 from decorators import league_membership_required
 from models import League, Player, Game, LeaguePlayerMap, Invite, INV_PENDING, \
@@ -349,7 +350,8 @@ class PositionHistoryView(APIView):
 
         for player in league.player_set.all():
             #i hate you django for not allowing negative indexing..
-            history = PositionHistory.objects.filter(league_fk=league, player_fk=player).reverse()[:21]
+
+            history = PositionHistory.objects.filter(league_fk=league, player_fk=player, date__gt=datetime.now()-timedelta(days=22))
             serialized = PositionHistorySerializer(history, many=True)
             league_history.append(serialized.data)
 
