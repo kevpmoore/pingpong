@@ -348,7 +348,8 @@ class PositionHistoryView(APIView):
         league = League.objects.get(league_name=league_name)
 
         for player in league.player_set.all():
-            history = PositionHistory.objects.filter(league_fk=league, player_fk=player)[-21:]
+            #i hate you django for not allowing negative indexing..
+            history = PositionHistory.objects.filter(league_fk=league, player_fk=player).reverse()[:21]
             serialized = PositionHistorySerializer(history, many=True)
             league_history.append(serialized.data)
 
