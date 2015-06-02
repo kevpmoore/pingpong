@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, UserManager
 from django.db.models import F, Q, Count
 
 #TODO adjust kfact for ratings level
-#higher kfactor means less points
+#lower number kfactor means less points.. its named weirdly.. i agree
 kFACTOR_HIGH = 35
 kFACTOR_AVG = 50
 kFACTOR_LOW = 60
@@ -24,7 +24,7 @@ class Player(User):
     objects = UserManager()
 
     leagues = models.ManyToManyField('League', through='LeaguePlayerMap', related_name='player_set', blank=True, null=True)
-    last_deprecated = models.DateField
+    # last_deprecated = models.DateField
 
 
 class Game(models.Model):
@@ -101,7 +101,7 @@ class Game(models.Model):
     def get_kfactor(self, player_rating):
         if player_rating < 900:
             return kFACTOR_LOW
-        elif player_rating > 1150:
+        elif player_rating > 1250:
             return kFACTOR_HIGH
         else:
             return kFACTOR_AVG
